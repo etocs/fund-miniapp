@@ -228,14 +228,19 @@ async function getFundDetail(code) {
     };
     
     const extractArrayVar = (varName) => {
-      const regex = new RegExp(`var\\s+${varName}\\s*=\\s*(\\[.*?\\]);`, 's');
+      // 使用更宽松的正则，处理多行和复杂数据
+      const regex = new RegExp(`var\\s+${varName}\\s*=\\s*(\\[\\s*[\\s\\S]*?\\])\\s*;`, 'm');
       const match = data.match(regex);
       if (match) {
         try {
-          return JSON.parse(match[1]);
+          // 清理可能导致解析失败的内容
+          let jsonStr = match[1];
+          // 移除尾部分号
+          jsonStr = jsonStr.replace(/;+$/, '');
+          return JSON.parse(jsonStr);
         } catch (e) {
-          console.error(`解析 ${varName} 失败:`, e);
-          return [];
+          console.warn(`解析 ${varName} 失败，返回空数组:`, e.message);
+          return [];  // 解析失败时返回空数组，不阻塞其他功能
         }
       }
       return [];

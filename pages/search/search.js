@@ -108,12 +108,9 @@ Page({
    * 点击基金项
    */
   onFundTap(e) {
-    // 优先从 currentTarget.dataset 获取数据
-    const fund = e.currentTarget.dataset.item || e.detail?.fund;
+    // 兼容两种数据传递方式
+    const fund = e.detail?.fund || e.currentTarget?.dataset?.fund;
     
-    console.log('点击基金:', fund, 'event:', e);
-    
-    // 添加空值检查
     if (!fund || !fund.code) {
       console.error('基金数据为空', e);
       return;
