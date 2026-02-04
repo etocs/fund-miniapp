@@ -1,0 +1,20 @@
+<!--components/fund-item/fund-item.wxml-->
+<view class="fund-item" bindtap="onTap">
+  <view class="fund-info">
+    <view class="fund-name">{{fund.name}}</view>
+    <view class="fund-code">{{fund.fundcode || fund.code}}</view>
+  </view>
+  
+  <view class="fund-data">
+    <view class="fund-nav">
+      <view class="nav-value">{{fund.gsz || fund.nav || fund.dwjz || '--'}}</view>
+      <view class="nav-growth {{changeClass}}">
+        {{fund.gszzl || fund.dayGrowth || '--'}}%
+      </view>
+    </view>
+    
+    <view class="fund-action" wx:if="{{showAddButton}}" catchtap="onToggleFavorite">
+      <text class="action-icon">{{isFavorite ? '★' : '☆'}}</text>
+    </view>
+  </view>
+</view>

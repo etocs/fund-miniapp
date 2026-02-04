@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "自选基金",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#F5F5F5",
+  "usingComponents": {
+    "fund-item": "../../components/fund-item/fund-item"
+  }
+}

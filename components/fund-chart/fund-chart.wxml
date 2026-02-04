@@ -1,0 +1,8 @@
+<!--components/fund-chart/fund-chart.wxml-->
+<view class="chart-container" style="height: {{height}}">
+  <ec-canvas 
+    id="fund-chart" 
+    canvas-id="fund-chart" 
+    ec="{{ec}}"
+  ></ec-canvas>
+</view>
