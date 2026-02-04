@@ -66,10 +66,13 @@ Page({
       
       // 检查是否已自选
       const favorites = storage.getFavorites();
-      const resultsWithFavorite = results.map(item => ({
-        ...item,
-        isFavorite: favorites.includes(item.code),
-      }));
+      const resultsWithFavorite = results.map(item => {
+        const itemCode = item.fundcode || item.code;
+        return {
+          ...item,
+          isFavorite: favorites.includes(itemCode),
+        };
+      });
 
       this.setData({
         searchResults: resultsWithFavorite,
@@ -110,9 +113,14 @@ Page({
   onFundTap(e) {
     // 兼容两种数据传递方式
     const fund = e.detail?.fund || e.currentTarget?.dataset?.fund;
+    const fundcode = fund?.fundcode || fund?.code;
     
-    if (!fund || !fund.code) {
-      console.error('基金数据为空', e);
+    if (!fundcode) {
+      console.error('基金代码为空', e);
+      wx.showToast({
+        title: '基金数据错误',
+        icon: 'none'
+      });
       return;
     }
     
@@ -121,9 +129,9 @@ Page({
       storage.addSearchHistory(this.data.keyword);
     }
 
-    // 跳转到详情页
+    // 跳转到详情页，使用 fundcode
     wx.navigateTo({
-      url: `/pages/detail/detail?code=${fund.code}`,
+      url: `/pages/detail/detail?code=${fundcode}`,
     });
   },
 
@@ -132,23 +140,25 @@ Page({
    */
   onToggleFavorite(e) {
     const { fund, isFavorite } = e.detail;
+    const fundcode = fund?.fundcode || fund?.code;
 
-    if (!fund || !fund.code) {
+    if (!fundcode) {
       console.error('基金数据为空');
       return;
     }
 
     if (isFavorite) {
-      storage.removeFavorite(fund.code);
+      storage.removeFavorite(fundcode);
       util.showToast('已取消自选');
     } else {
-      storage.addFavorite(fund.code);
+      storage.addFavorite(fundcode);
       util.showToast('已添加到自选');
     }
 
     // 更新列表状态
     const results = this.data.searchResults.map(item => {
-      if (item.code === fund.code) {
+      const itemCode = item.fundcode || item.code;
+      if (itemCode === fundcode) {
         return { ...item, isFavorite: !isFavorite };
       }
       return item;

@@ -43,11 +43,20 @@ function setFavorites(favorites) {
 
 /**
  * 添加自选基金
- * @param {String} fundCode 基金代码
+ * @param {String|Object} fund 基金代码或基金对象
  * @returns {Boolean} 是否成功
  */
-function addFavorite(fundCode) {
+function addFavorite(fund) {
   const favorites = getFavorites();
+  
+  // 兼容两种传参方式：字符串代码或对象
+  const fundCode = typeof fund === 'string' ? fund : (fund.fundcode || fund.code);
+  
+  if (!fundCode) {
+    console.error('基金代码为空', fund);
+    return false;
+  }
+  
   if (!favorites.includes(fundCode)) {
     favorites.unshift(fundCode); // 添加到开头
     return setFavorites(favorites);

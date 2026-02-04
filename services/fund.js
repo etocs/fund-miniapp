@@ -59,7 +59,8 @@ async function getFundValuation(code) {
     const result = JSON.parse(jsonStr);
     
     return {
-      code: result.fundcode,
+      fundcode: result.fundcode, // 保留原始字段名
+      code: result.fundcode, // 同时提供 code 字段兼容
       name: result.name,
       nav: result.dwjz, // 单位净值
       navDate: result.jzrq, // 净值日期
@@ -143,7 +144,8 @@ async function searchFund(keyword) {
     // 如果成功获取到基金信息，返回数组
     if (result && result.fundcode) {
       return [{
-        code: result.fundcode,
+        fundcode: result.fundcode, // 保留原始字段名
+        code: result.fundcode, // 同时提供 code 字段兼容
         name: result.name,
         nav: result.dwjz,
         navDate: result.jzrq,

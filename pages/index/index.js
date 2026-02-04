@@ -87,9 +87,21 @@ Page({
    * 点击基金项
    */
   onFundTap(e) {
-    const { fund } = e.detail;
+    const fund = e.detail?.fund || e.currentTarget?.dataset?.fund;
+    const fundcode = fund?.fundcode || fund?.code;
+    
+    if (!fundcode) {
+      console.error('基金代码为空', e);
+      wx.showToast({
+        title: '基金数据错误',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 跳转到详情页
     wx.navigateTo({
-      url: `/pages/detail/detail?code=${fund.fundcode}`,
+      url: `/pages/detail/detail?code=${fundcode}`,
     });
   },
 
@@ -98,6 +110,12 @@ Page({
    */
   async onDeleteFund(e) {
     const { fund } = e.currentTarget.dataset;
+    const fundcode = fund?.fundcode || fund?.code;
+    
+    if (!fundcode) {
+      console.error('基金代码为空', fund);
+      return;
+    }
     
     const confirm = await util.showModal(
       `确定要删除 ${fund.name} 吗？`,
@@ -105,7 +123,7 @@ Page({
     );
 
     if (confirm) {
-      storage.removeFavorite(fund.fundcode);
+      storage.removeFavorite(fundcode);
       this.loadFunds();
       util.showToast('删除成功');
     }
