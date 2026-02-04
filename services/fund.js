@@ -267,6 +267,11 @@ async function getFundDetail(code) {
     
     const extractArrayVar = (varName) => {
       // 使用更精确的正则，匹配到分号结束
+      // 匹配格式: var varName = [...] 或 var varName = {...}
+      // 正则说明：
+      // - var\s+${varName}\s*=\s* : 匹配变量声明
+      // - ([\[\{][\s\S]*?) : 捕获以 [ 或 { 开头的数组/对象内容（非贪婪）
+      // - \s*;(?=\s*(?:var|/\*|$)) : 匹配分号，后面跟着下一个var、注释或结尾（向前查找）
       const regex = new RegExp(`var\\s+${varName}\\s*=\\s*([\\[\\{][\\s\\S]*?)\\s*;(?=\\s*(?:var|/\\*|$))`, 'm');
       const match = data.match(regex);
       if (match) {
@@ -276,9 +281,11 @@ async function getFundDetail(code) {
           return JSON.parse(jsonStr);
         } catch (e) {
           console.warn(`解析 ${varName} 失败:`, e.message);
+          // 根据变量名类型返回默认值：Manager相关返回数组，其他返回对象
           return varName.includes('Manager') ? [] : {};
         }
       }
+      // 根据变量名类型返回默认值
       return varName.includes('Manager') ? [] : {};
     };
     

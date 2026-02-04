@@ -108,6 +108,19 @@ function isFavorite(fundCode) {
 }
 
 /**
+ * 根据基金代码查找自选
+ * @param {String} fundCode 基金代码
+ * @returns {Object|null} 自选对象，如果不存在则返回null
+ */
+function getFavoriteByCode(fundCode) {
+  const favorites = getFavorites();
+  return favorites.find(item => {
+    const code = typeof item === 'string' ? item : (item.fundcode || item.code);
+    return code === fundCode;
+  }) || null;
+}
+
+/**
  * 更新持仓信息
  * @param {String} fundcode 基金代码
  * @param {Number} shares 持有份额
@@ -350,6 +363,7 @@ module.exports = {
   addFavorite,
   removeFavorite,
   isFavorite,
+  getFavoriteByCode,
   updateHolding,
   
   // 搜索历史

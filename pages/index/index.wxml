@@ -62,7 +62,7 @@
       </view>
       <view class="fund-time">估值时间: {{item.gztime || '--'}}</view>
       <!-- 删除按钮 -->
-      <view class="delete-btn" catchtap="onDeleteFund" data-fundcode="{{item.fundcode}}">
+      <view class="delete-btn" catchtap="onDeleteFund" data-fundcode="{{item.fundcode}}" role="button" aria-label="删除基金">
         <text>删除</text>
       </view>
     </view>

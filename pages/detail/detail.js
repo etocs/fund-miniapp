@@ -93,11 +93,7 @@ Page({
    */
   loadPosition(code) {
     // 从自选列表中获取持仓信息
-    const favorites = storage.getFavorites();
-    const favorite = favorites.find(f => {
-      const fundcode = typeof f === 'string' ? f : (f.fundcode || f.code);
-      return fundcode === code;
-    });
+    const favorite = storage.getFavoriteByCode(code);
     
     if (favorite && typeof favorite === 'object' && favorite.shares > 0 && this.data.fundInfo) {
       // 计算收益
