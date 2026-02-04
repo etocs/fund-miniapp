@@ -137,14 +137,27 @@ async function searchFund(keyword) {
     // API 返回格式: { Datas: [...], ErrCode: 0, ... }
     if (data.Datas && Array.isArray(data.Datas)) {
       return data.Datas.map(item => {
-        const parts = item.split(',');
-        return {
-          code: parts[0], // 基金代码
-          name: parts[1], // 基金名称
-          type: parts[2], // 基金类型
-          pinyin: parts[3], // 拼音
-        };
-      });
+        // 兼容两种返回格式
+        if (typeof item === 'string') {
+          // 字符串格式: "004814,中欧红利优享混合A,混合型,zhoglhyxhhA"
+          const parts = item.split(',');
+          return {
+            code: parts[0] || '', // 基金代码
+            name: parts[1] || '', // 基金名称
+            type: parts[2] || '', // 基金类型
+            pinyin: parts[3] || '', // 拼音
+          };
+        } else if (typeof item === 'object' && item !== null) {
+          // 对象格式
+          return {
+            code: item.CODE || item.code || item.FCODE || '',
+            name: item.NAME || item.name || item.SHORTNAME || '',
+            type: item.TYPE || item.type || item.FTYPE || '',
+            pinyin: item.PINYIN || item.pinyin || '',
+          };
+        }
+        return null;
+      }).filter(item => item !== null && item.code !== '');
     }
     
     return [];
