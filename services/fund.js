@@ -63,14 +63,24 @@ async function getFundValuation(code) {
 /**
  * 批量获取基金估值
  * @param {Array} codes 基金代码数组
+ * @param {Boolean} useCache 是否使用缓存，默认 true
  * @returns {Promise} 返回基金估值数组
  */
-async function getBatchFundValuation(codes) {
+async function getBatchFundValuation(codes, useCache = true) {
   if (!codes || codes.length === 0) {
     return [];
   }
   
   try {
+    // 检查缓存
+    if (useCache) {
+      const cacheKey = `batch_valuation_${codes.join('_')}`;
+      const cached = storage.getCache(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    }
+    
     // 并发请求所有基金估值
     const promises = codes.map(code => 
       getFundValuation(code).catch(err => {
@@ -82,7 +92,15 @@ async function getBatchFundValuation(codes) {
     const results = await Promise.all(promises);
     
     // 过滤掉失败的请求
-    return results.filter(item => item !== null);
+    const funds = results.filter(item => item !== null);
+    
+    // 缓存结果
+    if (useCache && funds.length > 0) {
+      const cacheKey = `batch_valuation_${codes.join('_')}`;
+      storage.setCache(cacheKey, funds, config.CACHE_TIME.VALUATION);
+    }
+    
+    return funds;
   } catch (err) {
     console.error('批量获取基金估值失败:', err);
     throw err;
