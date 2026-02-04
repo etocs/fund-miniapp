@@ -108,7 +108,16 @@ Page({
    * 点击基金项
    */
   onFundTap(e) {
-    const { fund } = e.detail;
+    // 优先从 currentTarget.dataset 获取数据
+    const fund = e.currentTarget.dataset.item || e.detail?.fund;
+    
+    console.log('点击基金:', fund, 'event:', e);
+    
+    // 添加空值检查
+    if (!fund || !fund.code) {
+      console.error('基金数据为空', e);
+      return;
+    }
     
     // 保存搜索历史
     if (this.data.keyword) {
@@ -126,6 +135,11 @@ Page({
    */
   onToggleFavorite(e) {
     const { fund, isFavorite } = e.detail;
+
+    if (!fund || !fund.code) {
+      console.error('基金数据为空');
+      return;
+    }
 
     if (isFavorite) {
       storage.removeFavorite(fund.code);
