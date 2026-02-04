@@ -157,7 +157,7 @@ async function searchFund(keyword) {
           };
         }
         return null;
-      }).filter(item => item !== null && item.code);
+      }).filter(item => item !== null && item.code !== '');
     }
     
     return [];
