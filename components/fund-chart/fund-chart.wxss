@@ -1,0 +1,7 @@
+/* components/fund-chart/fund-chart.wxss */
+.chart-container {
+  width: 100%;
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}

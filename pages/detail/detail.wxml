@@ -1,0 +1,120 @@
+<!--pages/detail/detail.wxml-->
+<view class="container">
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <loading>加载中...</loading>
+  </view>
+
+  <!-- 基金详情 -->
+  <view wx:else>
+    <!-- 基本信息 -->
+    <view class="card">
+      <view class="fund-header">
+        <view class="fund-title">
+          <view class="fund-name">{{fundInfo.name}}</view>
+          <view class="fund-code">{{fundInfo.code}}</view>
+        </view>
+        <view class="favorite-btn" bindtap="onToggleFavorite">
+          <text class="favorite-icon">{{isFavorite ? '★' : '☆'}}</text>
+        </view>
+      </view>
+
+      <view class="fund-valuation">
+        <view class="valuation-item">
+          <view class="label">实时估值</view>
+          <view class="value text-xl font-bold">{{fundInfo.valuation || '--'}}</view>
+          <view class="growth {{getChangeClass(fundInfo.dayGrowth)}}">
+            {{formatPercent(fundInfo.dayGrowth)}}
+          </view>
+        </view>
+        <view class="valuation-item">
+          <view class="label">单位净值</view>
+          <view class="value">{{fundInfo.nav || '--'}}</view>
+          <view class="date text-secondary">{{fundInfo.navDate}}</view>
+        </view>
+      </view>
+
+      <view class="fund-info-grid">
+        <view class="info-item">
+          <view class="info-label">基金类型</view>
+          <view class="info-value">{{fundInfo.type || '--'}}</view>
+        </view>
+        <view class="info-item">
+          <view class="info-label">基金公司</view>
+          <view class="info-value">{{fundInfo.company || '--'}}</view>
+        </view>
+        <view class="info-item">
+          <view class="info-label">基金经理</view>
+          <view class="info-value">{{fundInfo.manager || '--'}}</view>
+        </view>
+        <view class="info-item">
+          <view class="info-label">资产规模</view>
+          <view class="info-value">{{fundInfo.scale || '--'}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 持仓信息 -->
+    <view class="card" wx:if="{{position}}">
+      <view class="card-title">我的持仓</view>
+      <view class="position-info">
+        <view class="position-row">
+          <text class="position-label">持有份额：</text>
+          <text class="position-value">{{formatNumber(position.shares, 2)}}</text>
+        </view>
+        <view class="position-row">
+          <text class="position-label">成本价：</text>
+          <text class="position-value">{{formatNumber(position.cost, 4)}}</text>
+        </view>
+        <view class="position-row">
+          <text class="position-label">当前市值：</text>
+          <text class="position-value text-lg font-bold">¥{{formatNumber(position.marketValue, 2)}}</text>
+        </view>
+        <view class="position-row">
+          <text class="position-label">持仓收益：</text>
+          <text class="position-value text-lg font-bold {{getChangeClass(position.profit)}}">
+            {{formatPercent(position.profitRate)}} (¥{{formatNumber(position.profit, 2)}})
+          </text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 净值走势 -->
+    <view class="card">
+      <view class="card-title">净值走势</view>
+      
+      <!-- 时间范围选择 -->
+      <view class="time-range-tabs">
+        <view
+          class="tab-item {{activeTab === key ? 'active' : ''}}"
+          wx:for="{{timeRanges}}"
+          wx:for-item="range"
+          wx:for-index="key"
+          wx:key="key"
+          bindtap="onTimeRangeChange"
+          data-range="{{key}}"
+        >
+          {{range.label}}
+        </view>
+      </view>
+
+      <!-- 图表 -->
+      <view class="chart-wrapper">
+        <fund-chart
+          chart-data="{{chartData}}"
+          height="400rpx"
+        ></fund-chart>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <button class="action-button" bindtap="onToggleFavorite">
+        {{isFavorite ? '取消自选' : '添加自选'}}
+      </button>
+      <button class="action-button primary" bindtap="goToCalculator">
+        持仓计算器
+      </button>
+    </view>
+  </view>
+</view>

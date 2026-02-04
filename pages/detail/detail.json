@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "基金详情",
+  "usingComponents": {
+    "fund-chart": "../../components/fund-chart/fund-chart"
+  }
+}

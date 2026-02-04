@@ -1,0 +1,82 @@
+<!--pages/rank/rank.wxml-->
+<view class="container">
+  <!-- 筛选器 -->
+  <view class="filter-bar">
+    <view class="filter-item">
+      <text class="filter-label">类型：</text>
+      <picker
+        mode="selector"
+        range="{{fundTypes}}"
+        range-key="label"
+        value="{{fundType}}"
+        bindchange="onFundTypeChange"
+      >
+        <view class="picker-value">
+          {{fundTypes[fundType].label || '全部'}}
+          <text class="arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="filter-item">
+      <text class="filter-label">排序：</text>
+      <picker
+        mode="selector"
+        range="{{sortTypes}}"
+        range-key="label"
+        value="{{sortType}}"
+        bindchange="onSortTypeChange"
+      >
+        <view class="picker-value">
+          {{sortTypes[sortType] || '日涨跌幅'}}
+          <text class="arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <loading>加载中...</loading>
+  </view>
+
+  <!-- 基金列表 -->
+  <view class="fund-list" wx:else>
+    <view class="list-header">
+      <text class="col col-name">基金名称</text>
+      <text class="col col-nav">净值</text>
+      <text class="col col-growth">涨跌幅</text>
+      <text class="col col-action">操作</text>
+    </view>
+
+    <view
+      class="fund-item"
+      wx:for="{{fundList}}"
+      wx:key="code"
+      bindtap="onFundTap"
+      data-item="{{item}}"
+    >
+      <view class="col col-name">
+        <view class="fund-name">{{item.name}}</view>
+        <view class="fund-code">{{item.code}}</view>
+      </view>
+      <view class="col col-nav">
+        <text>{{formatNumber(item.nav, 4)}}</text>
+      </view>
+      <view class="col col-growth">
+        <text class="{{getChangeClass(item.dayGrowth)}}">
+          {{formatPercent(item.dayGrowth)}}
+        </text>
+      </view>
+      <view class="col col-action" catchtap="onToggleFavorite" data-item="{{item}}">
+        <text class="favorite-icon">{{item.isFavorite ? '★' : '☆'}}</text>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{fundList.length === 0}}">
+      <view class="empty-icon">📊</view>
+      <view class="empty-text">暂无数据</view>
+    </view>
+  </view>
+</view>

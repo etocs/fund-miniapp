@@ -1,0 +1,69 @@
+<!--pages/search/search.wxml-->
+<view class="container">
+  <!-- 搜索框 -->
+  <view class="search-bar">
+    <view class="search-input-wrapper">
+      <input
+        class="search-input"
+        type="text"
+        placeholder="输入基金代码或名称"
+        value="{{keyword}}"
+        bindinput="onSearchInput"
+        focus="{{true}}"
+      />
+      <view class="clear-btn" wx:if="{{keyword}}" bindtap="onClear">✕</view>
+    </view>
+    <view class="cancel-btn" bindtap="onCancel">取消</view>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <loading>搜索中...</loading>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="search-results" wx:elif="{{showResults}}">
+    <view wx:if="{{searchResults.length > 0}}">
+      <view class="result-header">
+        <text>搜索结果（{{searchResults.length}}）</text>
+      </view>
+      <view wx:for="{{searchResults}}" wx:key="code">
+        <fund-item
+          fund="{{item}}"
+          show-add-button="{{true}}"
+          is-favorite="{{item.isFavorite}}"
+          bind:tap="onFundTap"
+          bind:toggle="onToggleFavorite"
+        ></fund-item>
+      </view>
+    </view>
+    <view class="empty-state" wx:else>
+      <view class="empty-icon">🔍</view>
+      <view class="empty-text">未找到相关基金</view>
+    </view>
+  </view>
+
+  <!-- 搜索历史 -->
+  <view class="search-history" wx:else>
+    <view class="history-header" wx:if="{{searchHistory.length > 0}}">
+      <text class="history-title">搜索历史</text>
+      <text class="clear-history" bindtap="onClearHistory">清空</text>
+    </view>
+    <view class="history-list">
+      <view
+        class="history-item"
+        wx:for="{{searchHistory}}"
+        wx:key="index"
+        bindtap="onHistoryTap"
+        data-keyword="{{item}}"
+      >
+        <text class="history-icon">🕐</text>
+        <text class="history-text">{{item}}</text>
+      </view>
+    </view>
+    <view class="empty-state" wx:if="{{searchHistory.length === 0}}">
+      <view class="empty-icon">📝</view>
+      <view class="empty-text">暂无搜索历史</view>
+    </view>
+  </view>
+</view>

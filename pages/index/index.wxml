@@ -1,0 +1,51 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 头部操作栏 -->
+  <view class="header">
+    <view class="header-actions">
+      <button class="action-btn" bindtap="goToSearch">
+        <text class="icon">🔍</text>
+        <text>搜索</text>
+      </button>
+      <button class="action-btn" bindtap="goToRank">
+        <text class="icon">📊</text>
+        <text>排行</text>
+      </button>
+      <button class="action-btn" bindtap="onRefresh">
+        <text class="icon">🔄</text>
+        <text>刷新</text>
+      </button>
+    </view>
+    <view class="update-time" wx:if="{{updateTime}}">
+      更新时间: {{updateTime}}
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <loading>加载中...</loading>
+  </view>
+
+  <!-- 基金列表 -->
+  <view class="fund-list" wx:elif="{{funds.length > 0}}">
+    <view class="fund-item-wrapper" wx:for="{{funds}}" wx:key="fundcode">
+      <fund-item
+        fund="{{item}}"
+        bind:tap="onFundTap"
+      ></fund-item>
+      <view class="delete-btn" bindtap="onDeleteFund" data-fund="{{item}}">
+        <text>删除</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <view class="empty-icon">📋</view>
+    <view class="empty-text">还没有自选基金</view>
+    <view class="empty-text">点击下方按钮添加</view>
+    <button class="btn-primary mt-20" bindtap="goToSearch">
+      添加自选基金
+    </button>
+  </view>
+</view>

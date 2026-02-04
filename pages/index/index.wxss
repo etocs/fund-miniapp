@@ -1,0 +1,91 @@
+/* pages/index/index.wxss */
+.container {
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+}
+
+.header {
+  background: #fff;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20rpx;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 10rpx 30rpx;
+  font-size: 14px;
+  color: #333;
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.icon {
+  font-size: 24px;
+  margin-bottom: 8rpx;
+}
+
+.update-time {
+  text-align: center;
+  font-size: 12px;
+  color: #999;
+}
+
+.fund-list {
+  padding: 0 20rpx;
+}
+
+.fund-item-wrapper {
+  position: relative;
+  margin-bottom: 20rpx;
+}
+
+.delete-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #EE4646;
+  color: #fff;
+  padding: 20rpx 30rpx;
+  border-radius: 0 16rpx 16rpx 0;
+  font-size: 14px;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.fund-item-wrapper:active .delete-btn {
+  opacity: 1;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 150rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 30rpx;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 10rpx;
+}

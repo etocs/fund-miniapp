@@ -1,0 +1,151 @@
+/* pages/calculator/calculator.wxss */
+.container {
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+}
+
+.fund-info {
+  text-align: center;
+  padding: 20rpx 0;
+}
+
+.fund-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.fund-nav {
+  margin-bottom: 10rpx;
+}
+
+.fund-nav .label {
+  font-size: 14px;
+  color: #666;
+}
+
+.fund-nav .value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #1989FA;
+  margin-left: 10rpx;
+}
+
+.fund-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.input-group {
+  margin-bottom: 30rpx;
+}
+
+.input-group:last-child {
+  margin-bottom: 0;
+}
+
+.input-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.input-field {
+  width: 100%;
+  padding: 24rpx;
+  background: #F5F5F5;
+  border-radius: 8rpx;
+  font-size: 16px;
+}
+
+.result-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.result-card .card-title {
+  color: #fff;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+}
+
+.result-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.result-value {
+  font-size: 18px;
+  color: #fff;
+}
+
+.result-divider {
+  height: 1rpx;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 10rpx 0;
+}
+
+.action-buttons {
+  display: flex;
+  padding: 20rpx;
+  gap: 20rpx;
+}
+
+.action-button {
+  flex: 1;
+  padding: 24rpx;
+  font-size: 16px;
+  border-radius: 8rpx;
+  border: 1rpx solid #1989FA;
+  color: #1989FA;
+  background: #fff;
+}
+
+.action-button.primary {
+  background: #1989FA;
+  color: #fff;
+  flex: 2;
+}
+
+.action-button::after {
+  border: none;
+}
+
+.tips {
+  margin: 20rpx;
+  padding: 24rpx;
+  background: #FFF8E1;
+  border-radius: 16rpx;
+  border-left: 4rpx solid #FFC107;
+}
+
+.tips-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.tips-text {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.8;
+  margin-bottom: 5rpx;
+}
+
+.tips-text:last-child {
+  margin-bottom: 0;
+}

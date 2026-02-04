@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "基金排行",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#F5F5F5",
+  "usingComponents": {}
+}

@@ -1,0 +1,95 @@
+<!--pages/calculator/calculator.wxml-->
+<view class="container">
+  <!-- 加载中 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <loading>加载中...</loading>
+  </view>
+
+  <!-- 计算器 -->
+  <view wx:else>
+    <!-- 基金信息 -->
+    <view class="card">
+      <view class="fund-info">
+        <view class="fund-name">{{fundInfo.name}}</view>
+        <view class="fund-nav">
+          <text class="label">当前净值：</text>
+          <text class="value">{{formatNumber(currentNav, 4)}}</text>
+        </view>
+        <view class="fund-time text-secondary">
+          {{fundInfo.valuationTime || fundInfo.navDate}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 输入区域 -->
+    <view class="card">
+      <view class="card-title">持仓信息</view>
+      
+      <view class="input-group">
+        <view class="input-label">持有份额</view>
+        <input
+          class="input-field"
+          type="digit"
+          placeholder="请输入持有份额"
+          value="{{shares}}"
+          bindinput="onSharesInput"
+        />
+      </view>
+
+      <view class="input-group">
+        <view class="input-label">成本价</view>
+        <input
+          class="input-field"
+          type="digit"
+          placeholder="请输入成本价"
+          value="{{cost}}"
+          bindinput="onCostInput"
+        />
+      </view>
+    </view>
+
+    <!-- 计算结果 -->
+    <view class="card result-card">
+      <view class="card-title">收益详情</view>
+      
+      <view class="result-item">
+        <view class="result-label">当前市值</view>
+        <view class="result-value text-xl font-bold">
+          ¥{{formatNumber(marketValue, 2)}}
+        </view>
+      </view>
+
+      <view class="result-divider"></view>
+
+      <view class="result-item">
+        <view class="result-label">持仓收益</view>
+        <view class="result-value text-xl font-bold {{getChangeClass(profit)}}">
+          {{formatPercent(profitRate)}}
+        </view>
+      </view>
+
+      <view class="result-item">
+        <view class="result-label">收益金额</view>
+        <view class="result-value text-lg font-bold {{getChangeClass(profit)}}">
+          ¥{{formatNumber(profit, 2)}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <button class="action-button" bindtap="onClear">清空</button>
+      <button class="action-button" bindtap="onDelete">删除</button>
+      <button class="action-button primary" bindtap="onSave">保存</button>
+    </view>
+
+    <!-- 说明文字 -->
+    <view class="tips">
+      <view class="tips-title">💡 使用说明</view>
+      <view class="tips-text">1. 输入您的持有份额和成本价</view>
+      <view class="tips-text">2. 系统将自动计算当前市值和收益</view>
+      <view class="tips-text">3. 点击保存后可在详情页查看</view>
+      <view class="tips-text">4. 保存后会自动添加到自选列表</view>
+    </view>
+  </view>
+</view>
