@@ -65,6 +65,7 @@ Page({
 
     try {
       // 批量获取基金数据，刷新时不使用缓存
+      // getFavorites 返回的可能是对象数组（包含shares和cost）或字符串数组
       const funds = await fundService.getBatchFundValuation(favorites, !refresh);
       
       this.setData({
@@ -109,16 +110,16 @@ Page({
    * 删除自选基金
    */
   async onDeleteFund(e) {
-    const { fund } = e.currentTarget.dataset;
-    const fundcode = fund?.fundcode || fund?.code;
+    const fundcode = e.currentTarget.dataset.fundcode;
+    const fund = e.currentTarget.dataset.fund;
     
     if (!fundcode) {
-      console.error('基金代码为空', fund);
+      console.error('基金代码为空', e);
       return;
     }
     
     const confirm = await util.showModal(
-      `确定要删除 ${fund.name} 吗？`,
+      `确定要删除 ${fund?.name || fundcode} 吗？`,
       '删除自选'
     );
 

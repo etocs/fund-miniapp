@@ -65,12 +65,11 @@ Page({
       const results = await fundService.searchFund(keyword);
       
       // 检查是否已自选
-      const favorites = storage.getFavorites();
       const resultsWithFavorite = results.map(item => {
         const itemCode = item.fundcode || item.code;
         return {
           ...item,
-          isFavorite: favorites.includes(itemCode),
+          isFavorite: storage.isFavorite(itemCode),
         };
       });
 
@@ -151,7 +150,11 @@ Page({
       storage.removeFavorite(fundcode);
       util.showToast('已取消自选');
     } else {
-      storage.addFavorite(fundcode);
+      // 传递对象给 addFavorite，包含基金代码和名称
+      storage.addFavorite({
+        fundcode: fundcode,
+        name: fund.name,
+      });
       util.showToast('已添加到自选');
     }
 

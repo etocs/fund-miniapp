@@ -92,19 +92,22 @@ Page({
    * 加载持仓信息
    */
   loadPosition(code) {
-    const position = storage.getPosition(code);
-    if (position && this.data.fundInfo) {
+    // 从自选列表中获取持仓信息
+    const favorite = storage.getFavoriteByCode(code);
+    
+    if (favorite && typeof favorite === 'object' && favorite.shares > 0 && this.data.fundInfo) {
       // 计算收益
-      const currentNav = parseFloat(this.data.fundInfo.valuation || this.data.fundInfo.nav);
+      const currentNav = parseFloat(this.data.fundInfo.gsz || this.data.fundInfo.valuation || this.data.fundInfo.nav);
       const profit = fundService.calculateProfit(
-        position.shares,
-        position.cost,
+        favorite.shares,
+        favorite.cost,
         currentNav
       );
       
       this.setData({
         position: {
-          ...position,
+          shares: favorite.shares,
+          cost: favorite.cost,
           ...profit,
         },
       });
@@ -124,13 +127,17 @@ Page({
    * 添加/取消自选
    */
   onToggleFavorite() {
-    const { fundCode, isFavorite } = this.data;
+    const { fundCode, fundInfo, isFavorite } = this.data;
     
     if (isFavorite) {
       storage.removeFavorite(fundCode);
       util.showToast('已取消自选');
     } else {
-      storage.addFavorite(fundCode);
+      // 传递对象给 addFavorite，包含基金代码和名称
+      storage.addFavorite({
+        fundcode: fundCode,
+        name: fundInfo?.name || '',
+      });
       util.showToast('已添加到自选');
     }
     
