@@ -172,13 +172,19 @@ function getFundDetail(code) {
               const content = res.data;
               
               // 提取各项数据
+              const escapeRegex = (str) => {
+                return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              };
+
               const extractVar = (varName) => {
-                const match = content.match(new RegExp(`var\\s+${varName}\\s*=\\s*"?([^";]*)"?;`));
+                const escapedName = escapeRegex(varName);
+                const match = content.match(new RegExp(`var\\s+${escapedName}\\s*=\\s*"?([^";]*)"?;`));
                 return match ? match[1] : '';
               };
 
               const extractArray = (varName) => {
-                const match = content.match(new RegExp(`var\\s+${varName}\\s*=\\s*(\\[[\\s\\S]*?\\]);`));
+                const escapedName = escapeRegex(varName);
+                const match = content.match(new RegExp(`var\\s+${escapedName}\\s*=\\s*(\\[[\\s\\S]*?\\]);`));
                 if (match && match[1]) {
                   try {
                     return JSON.parse(match[1]);
@@ -230,12 +236,12 @@ function getFundDetail(code) {
  * 获取基金排行
  * @param {String} type 排行类型
  * @returns {Promise<Array<Object>>} 基金排行列表
+ * @note 当前为占位实现，返回空数组
  */
 function getFundRank(type = 'all') {
-  return new Promise((resolve, reject) => {
-    // 简化实现，返回空数组
-    // 实际应该调用天天基金排行接口
-    console.log('getFundRank not fully implemented, type:', type);
+  return new Promise((resolve) => {
+    // 占位实现：返回空数组
+    // TODO: 实际应该调用天天基金排行接口
     resolve([]);
   });
 }
