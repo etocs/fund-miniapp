@@ -122,7 +122,7 @@ async function getBatchFundValuation(codes, useCache = true) {
 
 /**
  * 搜索基金
- * @param {String} keyword 搜索关键词
+ * @param {String} keyword 搜索关键词（当前仅支持基金代码精确搜索）
  * @returns {Promise} 返回搜索结果数组
  */
 async function searchFund(keyword) {
@@ -131,26 +131,33 @@ async function searchFund(keyword) {
   }
   
   try {
-    const url = `${config.API.FUND_SEARCH}?m=1&key=${encodeURIComponent(keyword)}`;
+    // 使用估值接口搜索单个基金（按代码精确搜索）
+    // 由于搜索 API 实际返回 JSONP 格式，这里直接使用估值接口按基金代码查询
+    const url = `${config.API.FUND_GZ}${keyword}.js`;
     const data = await request(url);
     
-    // API 返回格式: { Datas: [...], ErrCode: 0, ... }
-    if (data.Datas && Array.isArray(data.Datas)) {
-      return data.Datas.map(item => {
-        const parts = item.split(',');
-        return {
-          code: parts[0], // 基金代码
-          name: parts[1], // 基金名称
-          type: parts[2], // 基金类型
-          pinyin: parts[3], // 拼音
-        };
-      });
+    // 解析 JSONP 格式: jsonpgz({...})
+    const jsonStr = data.replace(/^jsonpgz\(/, '').replace(/\);?$/, '');
+    const result = JSON.parse(jsonStr);
+    
+    // 如果成功获取到基金信息，返回数组
+    if (result && result.fundcode) {
+      return [{
+        code: result.fundcode,
+        name: result.name,
+        nav: result.dwjz,
+        navDate: result.jzrq,
+        gsz: result.gsz,  // 估算值
+        gszzl: result.gszzl,  // 估算涨跌幅
+        gztime: result.gztime,  // 估值时间
+      }];
     }
     
     return [];
   } catch (err) {
     console.error('搜索基金失败:', err);
-    throw err;
+    // 搜索失败时返回空数组而不是抛出错误，避免页面崩溃
+    return [];
   }
 }
 
