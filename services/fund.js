@@ -62,6 +62,11 @@ async function getFundValuation(code) {
       fundcode: result.fundcode, // 保留原始字段名
       code: result.fundcode, // 同时提供 code 字段兼容
       name: result.name,
+      dwjz: result.dwjz, // 单位净值（原始字段名）
+      gsz: result.gsz, // 估算值（原始字段名）
+      gszzl: result.gszzl, // 估算涨跌幅（原始字段名）
+      gztime: result.gztime, // 估值时间（原始字段名）
+      jzrq: result.jzrq, // 净值日期（原始字段名）
       nav: result.dwjz, // 单位净值
       navDate: result.jzrq, // 净值日期
       valuation: result.gsz, // 估算值
@@ -76,14 +81,17 @@ async function getFundValuation(code) {
 
 /**
  * 批量获取基金估值
- * @param {Array} codes 基金代码数组
+ * @param {Array} funds 基金数组（可以是字符串代码或对象）
  * @param {Boolean} useCache 是否使用缓存，默认 true
  * @returns {Promise} 返回基金估值数组
  */
-async function getBatchFundValuation(codes, useCache = true) {
-  if (!codes || codes.length === 0) {
+async function getBatchFundValuation(funds, useCache = true) {
+  if (!funds || funds.length === 0) {
     return [];
   }
+  
+  // 提取基金代码
+  const codes = funds.map(f => typeof f === 'string' ? f : (f.fundcode || f.code));
   
   const cacheKey = `batch_valuation_${codes.join('_')}`;
   
@@ -92,7 +100,20 @@ async function getBatchFundValuation(codes, useCache = true) {
     if (useCache) {
       const cached = storage.getCache(cacheKey);
       if (cached) {
-        return cached;
+        // 合并缓存数据与持仓信息
+        return cached.map(item => {
+          const fund = funds.find(f => {
+            const code = typeof f === 'string' ? f : (f.fundcode || f.code);
+            return code === item.fundcode;
+          });
+          
+          if (typeof fund === 'object' && fund.shares) {
+            // 计算盈亏
+            const profitData = calculateProfit(fund.shares, fund.cost, item.gsz);
+            return { ...item, ...fund, ...profitData };
+          }
+          return item;
+        });
       }
     }
     
@@ -107,14 +128,29 @@ async function getBatchFundValuation(codes, useCache = true) {
     const results = await Promise.all(promises);
     
     // 过滤掉失败的请求
-    const funds = results.filter(item => item !== null);
+    const valuations = results.filter(item => item !== null);
     
     // 缓存结果
-    if (useCache && funds.length > 0) {
-      storage.setCache(cacheKey, funds, config.CACHE_TIME.VALUATION);
+    if (useCache && valuations.length > 0) {
+      storage.setCache(cacheKey, valuations, config.CACHE_TIME.VALUATION);
     }
     
-    return funds;
+    // 合并持仓信息和计算盈亏
+    const fundList = valuations.map(item => {
+      const fund = funds.find(f => {
+        const code = typeof f === 'string' ? f : (f.fundcode || f.code);
+        return code === item.fundcode;
+      });
+      
+      if (typeof fund === 'object' && fund.shares) {
+        // 计算盈亏
+        const profitData = calculateProfit(fund.shares, fund.cost, item.gsz);
+        return { ...item, ...fund, ...profitData };
+      }
+      return item;
+    });
+    
+    return fundList;
   } catch (err) {
     console.error('批量获取基金估值失败:', err);
     throw err;
@@ -230,22 +266,20 @@ async function getFundDetail(code) {
     };
     
     const extractArrayVar = (varName) => {
-      // 使用更宽松的正则，处理多行和复杂数据
-      const regex = new RegExp(`var\\s+${varName}\\s*=\\s*(\\[\\s*[\\s\\S]*?\\])\\s*;`, 'm');
+      // 使用更精确的正则，匹配到分号结束
+      const regex = new RegExp(`var\\s+${varName}\\s*=\\s*([\\[\\{][\\s\\S]*?)\\s*;(?=\\s*(?:var|/\\*|$))`, 'm');
       const match = data.match(regex);
       if (match) {
         try {
-          // 清理可能导致解析失败的内容
-          let jsonStr = match[1];
-          // 移除尾部分号
-          jsonStr = jsonStr.replace(/;+$/, '');
+          // 清理可能的尾部空白
+          let jsonStr = match[1].trim();
           return JSON.parse(jsonStr);
         } catch (e) {
-          console.warn(`解析 ${varName} 失败，返回空数组:`, e.message);
-          return [];  // 解析失败时返回空数组，不阻塞其他功能
+          console.warn(`解析 ${varName} 失败:`, e.message);
+          return varName.includes('Manager') ? [] : {};
         }
       }
-      return [];
+      return varName.includes('Manager') ? [] : {};
     };
     
     // 提取基本信息
@@ -263,56 +297,43 @@ async function getFundDetail(code) {
     const returnRate3y = extractVar('syl_3n'); // 近三年
     const returnRateSinceEstablish = extractVar('syl_ln'); // 成立来
     
-    // 提取净值走势数据
+    // 提取复杂数据
     const netWorthTrend = extractArrayVar('Data_netWorthTrend');
-    
-    // 提取基金经理信息
     const fundManagerData = extractArrayVar('Data_currentFundManager');
-    
-    // 提取持仓股票
-    const stockCodes = extractArrayVar('stockCodes');
+    const assetAllocation = extractArrayVar('Data_assetAllocation');
+    const performanceEvaluation = extractArrayVar('Data_performanceEvaluation');
     
     // 获取最新估值
-    let valuation = '';
-    let valuationRate = '';
-    let nav = '';
-    let navDate = '';
-    
+    let valuationData = {};
     try {
-      const valuationData = await getFundValuation(code);
-      valuation = valuationData.valuation;
-      valuationRate = valuationData.valuationRate;
-      nav = valuationData.nav;
-      navDate = valuationData.navDate;
+      valuationData = await getFundValuation(code);
     } catch (err) {
-      console.error('获取估值失败，使用历史净值:', err);
-      // 如果获取估值失败，使用净值走势的最后一个值
-      if (netWorthTrend && netWorthTrend.length > 0) {
-        const latest = netWorthTrend[netWorthTrend.length - 1];
-        nav = latest.y;
-        navDate = formatDate(latest.x);
-      }
+      console.warn('获取估值失败，使用历史数据');
     }
     
     return {
+      fundcode: fundCode || code,
       code: fundCode || code,
       name: name,
-      nav: nav,
-      navDate: navDate,
-      valuation: valuation,
-      valuationRate: valuationRate,
+      dwjz: valuationData.dwjz || '',
+      gsz: valuationData.gsz || '',
+      gszzl: valuationData.gszzl || '',
+      gztime: valuationData.gztime || '',
+      nav: valuationData.nav || valuationData.dwjz || '',
+      navDate: valuationData.navDate || valuationData.jzrq || '',
+      valuation: valuationData.valuation || valuationData.gsz || '',
+      valuationRate: valuationData.valuationRate || valuationData.gszzl || '',
+      valuationTime: valuationData.valuationTime || valuationData.gztime || '',
       sourceRate: sourceRate,
       rate: rate,
-      discount: discount,
       returnRate1m: returnRate1m,
       returnRate3m: returnRate3m,
       returnRate6m: returnRate6m,
       returnRate1y: returnRate1y,
-      returnRate3y: returnRate3y,
-      returnRateSinceEstablish: returnRateSinceEstablish,
       netWorthTrend: netWorthTrend,
       fundManager: fundManagerData,
-      stockCodes: stockCodes,
+      assetAllocation: assetAllocation,
+      performanceEvaluation: performanceEvaluation,
     };
   } catch (err) {
     console.error(`获取基金 ${code} 详情失败:`, err);

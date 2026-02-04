@@ -51,14 +51,30 @@ function addFavorite(fund) {
   
   // 兼容两种传参方式：字符串代码或对象
   const fundCode = typeof fund === 'string' ? fund : (fund.fundcode || fund.code);
+  const fundName = typeof fund === 'object' ? fund.name : '';
+  const shares = typeof fund === 'object' ? (fund.shares || 0) : 0;
+  const cost = typeof fund === 'object' ? (fund.cost || 0) : 0;
   
   if (!fundCode) {
     console.error('基金代码为空', fund);
     return false;
   }
   
-  if (!favorites.includes(fundCode)) {
-    favorites.unshift(fundCode); // 添加到开头
+  // 检查是否已存在
+  const existingIndex = favorites.findIndex(f => {
+    const code = typeof f === 'string' ? f : (f.fundcode || f.code);
+    return code === fundCode;
+  });
+  
+  if (existingIndex === -1) {
+    // 添加新的自选基金
+    favorites.unshift({
+      fundcode: fundCode,
+      name: fundName,
+      shares: parseFloat(shares) || 0,
+      cost: parseFloat(cost) || 0,
+      addTime: Date.now(),
+    });
     return setFavorites(favorites);
   }
   return true;
@@ -71,12 +87,11 @@ function addFavorite(fund) {
  */
 function removeFavorite(fundCode) {
   const favorites = getFavorites();
-  const index = favorites.indexOf(fundCode);
-  if (index > -1) {
-    favorites.splice(index, 1);
-    return setFavorites(favorites);
-  }
-  return true;
+  const newFavorites = favorites.filter(item => {
+    const code = typeof item === 'string' ? item : (item.fundcode || item.code);
+    return code !== fundCode;
+  });
+  return setFavorites(newFavorites);
 }
 
 /**
@@ -86,7 +101,43 @@ function removeFavorite(fundCode) {
  */
 function isFavorite(fundCode) {
   const favorites = getFavorites();
-  return favorites.includes(fundCode);
+  return favorites.some(item => {
+    const code = typeof item === 'string' ? item : (item.fundcode || item.code);
+    return code === fundCode;
+  });
+}
+
+/**
+ * 更新持仓信息
+ * @param {String} fundcode 基金代码
+ * @param {Number} shares 持有份额
+ * @param {Number} cost 成本价
+ * @returns {Boolean} 是否成功
+ */
+function updateHolding(fundcode, shares, cost) {
+  const favorites = getFavorites();
+  const index = favorites.findIndex(item => {
+    const code = typeof item === 'string' ? item : (item.fundcode || item.code);
+    return code === fundcode;
+  });
+  
+  if (index === -1) return false;
+  
+  // 如果是字符串格式，转换为对象格式
+  if (typeof favorites[index] === 'string') {
+    favorites[index] = {
+      fundcode: favorites[index],
+      name: '',
+      shares: parseFloat(shares) || 0,
+      cost: parseFloat(cost) || 0,
+      addTime: Date.now(),
+    };
+  } else {
+    favorites[index].shares = parseFloat(shares) || 0;
+    favorites[index].cost = parseFloat(cost) || 0;
+  }
+  
+  return setFavorites(favorites);
 }
 
 /**
@@ -299,6 +350,7 @@ module.exports = {
   addFavorite,
   removeFavorite,
   isFavorite,
+  updateHolding,
   
   // 搜索历史
   getSearchHistory,

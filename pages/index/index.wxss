@@ -50,25 +50,99 @@
 .fund-item-wrapper {
   position: relative;
   margin-bottom: 20rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 盈亏颜色 */
+.profit {
+  color: #e74c3c; /* 红色 - 盈利 */
+}
+
+.loss {
+  color: #27ae60; /* 绿色 - 亏损 */
+}
+
+.fund-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.fund-code {
+  font-size: 24rpx;
+  color: #999;
+  margin-right: 20rpx;
+}
+
+.fund-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  flex: 1;
+}
+
+.fund-values {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.value-item {
+  text-align: center;
+  flex: 1;
+}
+
+.value-item .label {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.value-item .value {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.fund-holding {
+  background: #f8f8f8;
+  padding: 16rpx;
+  border-radius: 8rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.holding-info {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.holding-profit {
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.fund-time {
+  font-size: 24rpx;
+  color: #999;
+  text-align: right;
 }
 
 .delete-btn {
   position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #EE4646;
+  right: 20rpx;
+  top: 20rpx;
+  padding: 10rpx 20rpx;
+  background: #ff6b6b;
   color: #fff;
-  padding: 20rpx 30rpx;
-  border-radius: 0 16rpx 16rpx 0;
-  font-size: 14px;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.fund-item-wrapper:active .delete-btn {
-  opacity: 1;
+  border-radius: 8rpx;
+  font-size: 24rpx;
 }
 
 .empty-state {

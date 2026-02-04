@@ -28,12 +28,41 @@
 
   <!-- 基金列表 -->
   <view class="fund-list" wx:elif="{{funds.length > 0}}">
-    <view class="fund-item-wrapper" wx:for="{{funds}}" wx:key="fundcode">
-      <fund-item
-        fund="{{item}}"
-        bind:tap="onFundTap"
-      ></fund-item>
-      <view class="delete-btn" bindtap="onDeleteFund" data-fund="{{item}}">
+    <view class="fund-item-wrapper" 
+          wx:for="{{funds}}" 
+          wx:key="fundcode"
+          data-fundcode="{{item.fundcode}}"
+          data-fund="{{item}}"
+          bindtap="onFundTap">
+      <!-- 基金信息展示 -->
+      <view class="fund-header">
+        <text class="fund-code">{{item.fundcode}}</text>
+        <text class="fund-name">{{item.name}}</text>
+      </view>
+      <view class="fund-values">
+        <view class="value-item">
+          <text class="label">净值</text>
+          <text class="value">{{item.dwjz || '--'}}</text>
+        </view>
+        <view class="value-item">
+          <text class="label">估值</text>
+          <text class="value">{{item.gsz || '--'}}</text>
+        </view>
+        <view class="value-item">
+          <text class="label">涨跌</text>
+          <text class="value {{item.gszzl >= 0 ? 'profit' : 'loss'}}">{{item.gszzl || '--'}}%</text>
+        </view>
+      </view>
+      <!-- 持仓盈亏（如果有设置） -->
+      <view class="fund-holding" wx:if="{{item.shares > 0}}">
+        <text class="holding-info">持仓: {{item.shares}}份 | 成本: {{item.cost}}</text>
+        <text class="holding-profit {{item.profit >= 0 ? 'profit' : 'loss'}}">
+          盈亏: {{item.profit >= 0 ? '+' : ''}}{{item.profit}} ({{item.profitRate}}%)
+        </text>
+      </view>
+      <view class="fund-time">估值时间: {{item.gztime || '--'}}</view>
+      <!-- 删除按钮 -->
+      <view class="delete-btn" catchtap="onDeleteFund" data-fundcode="{{item.fundcode}}">
         <text>删除</text>
       </view>
     </view>
