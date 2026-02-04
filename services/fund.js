@@ -32,6 +32,19 @@ function request(url) {
 }
 
 /**
+ * 将时间戳转换为本地日期字符串 (YYYY-MM-DD)
+ * @param {Number} timestamp 时间戳
+ * @returns {String} 日期字符串
+ */
+function formatDate(timestamp) {
+  const date = new Date(timestamp);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
  * 获取基金实时估值
  * @param {String} code 基金代码
  * @returns {Promise} 返回基金估值数据
@@ -71,10 +84,11 @@ async function getBatchFundValuation(codes, useCache = true) {
     return [];
   }
   
+  const cacheKey = `batch_valuation_${codes.join('_')}`;
+  
   try {
     // 检查缓存
     if (useCache) {
-      const cacheKey = `batch_valuation_${codes.join('_')}`;
       const cached = storage.getCache(cacheKey);
       if (cached) {
         return cached;
@@ -96,7 +110,6 @@ async function getBatchFundValuation(codes, useCache = true) {
     
     // 缓存结果
     if (useCache && funds.length > 0) {
-      const cacheKey = `batch_valuation_${codes.join('_')}`;
       storage.setCache(cacheKey, funds, config.CACHE_TIME.VALUATION);
     }
     
@@ -177,7 +190,7 @@ async function getFundHistory(code, page = 1, pageSize = 20) {
       const detail = await getFundDetail(code);
       if (detail.netWorthTrend && detail.netWorthTrend.length > 0) {
         const LSJZList = detail.netWorthTrend.slice(0, pageSize).map(item => ({
-          FSRQ: new Date(item.x).toISOString().split('T')[0],
+          FSRQ: formatDate(item.x),
           DWJZ: item.y,
           JZZZL: item.equityReturn,
         }));
@@ -263,7 +276,7 @@ async function getFundDetail(code) {
       if (netWorthTrend && netWorthTrend.length > 0) {
         const latest = netWorthTrend[netWorthTrend.length - 1];
         nav = latest.y;
-        navDate = new Date(latest.x).toISOString().split('T')[0];
+        navDate = formatDate(latest.x);
       }
     }
     
