@@ -122,7 +122,7 @@ async function getBatchFundValuation(codes, useCache = true) {
 
 /**
  * 搜索基金
- * @param {String} keyword 搜索关键词
+ * @param {String} keyword 搜索关键词（当前仅支持基金代码精确搜索）
  * @returns {Promise} 返回搜索结果数组
  */
 async function searchFund(keyword) {
@@ -131,8 +131,8 @@ async function searchFund(keyword) {
   }
   
   try {
-    // 使用估值接口搜索单个基金（按代码搜索）
-    // 如果 keyword 是基金代码，直接获取该基金信息
+    // 使用估值接口搜索单个基金（按代码精确搜索）
+    // 由于搜索 API 实际返回 JSONP 格式，这里直接使用估值接口按基金代码查询
     const url = `${config.API.FUND_GZ}${keyword}.js`;
     const data = await request(url);
     
