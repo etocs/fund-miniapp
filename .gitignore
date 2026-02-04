@@ -1,0 +1,26 @@
+# WeChat Mini Program
+.DS_Store
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Dependency directories
+node_modules/
+
+# Temporary files
+.tmp/
+.cache/
+
+# Build output
+dist/
+build/
