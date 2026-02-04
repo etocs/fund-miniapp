@@ -146,7 +146,7 @@ async function searchFund(keyword) {
  * @param {String} code 基金代码
  * @param {Number} page 页码，默认 1
  * @param {Number} pageSize 每页数量，默认 20
- * @returns {Promise} 返回历史净值数组
+ * @returns {Promise} 返回历史净值对象，包含 LSJZList 数组
  */
 async function getFundHistory(code, page = 1, pageSize = 20) {
   try {
@@ -158,33 +158,35 @@ async function getFundHistory(code, page = 1, pageSize = 20) {
     const result = JSON.parse(jsonStr);
     
     if (result.Data && result.Data.LSJZList) {
-      return result.Data.LSJZList.map(item => ({
-        date: item.FSRQ, // 净值日期
-        nav: item.DWJZ, // 单位净值
-        accNav: item.LJJZ, // 累计净值
-        rate: item.JZZZL, // 日涨跌幅
-        subscribeStatus: item.SGZT, // 申购状态
-        redeemStatus: item.SHZT, // 赎回状态
+      const LSJZList = result.Data.LSJZList.map(item => ({
+        FSRQ: item.FSRQ, // 净值日期
+        DWJZ: item.DWJZ, // 单位净值
+        LJJZ: item.LJJZ, // 累计净值
+        JZZZL: item.JZZZL, // 日涨跌幅
+        SGZT: item.SGZT, // 申购状态
+        SHZT: item.SHZT, // 赎回状态
       }));
+      return { LSJZList };
     }
     
-    return [];
+    return { LSJZList: [] };
   } catch (err) {
     console.error(`获取基金 ${code} 历史净值失败:`, err);
     // 如果历史净值接口失败，尝试从详情接口获取
     try {
       const detail = await getFundDetail(code);
       if (detail.netWorthTrend && detail.netWorthTrend.length > 0) {
-        return detail.netWorthTrend.slice(0, pageSize).map(item => ({
-          date: new Date(item.x).toISOString().split('T')[0].replace(/-/g, '-'),
-          nav: item.y,
-          rate: item.equityReturn,
+        const LSJZList = detail.netWorthTrend.slice(0, pageSize).map(item => ({
+          FSRQ: new Date(item.x).toISOString().split('T')[0],
+          DWJZ: item.y,
+          JZZZL: item.equityReturn,
         }));
+        return { LSJZList };
       }
     } catch (detailErr) {
       console.error('从详情接口获取历史净值也失败:', detailErr);
     }
-    return [];
+    return { LSJZList: [] };
   }
 }
 
