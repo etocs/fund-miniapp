@@ -75,7 +75,7 @@ Component({
     initChart(canvas, width, height) {
       if (!echarts) return;
 
-      const dpr = wx.getSystemInfoSync().pixelRatio;
+      const dpr = wx.getWindowInfo().pixelRatio;
       canvas.width = width * dpr;
       canvas.height = height * dpr;
 
