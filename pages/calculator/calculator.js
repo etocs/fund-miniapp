@@ -61,11 +61,17 @@ Page({
    * 加载已保存的持仓
    */
   loadPosition(code) {
-    const position = storage.getPosition(code);
-    if (position) {
+    // 从自选列表中获取持仓信息
+    const favorites = storage.getFavorites();
+    const favorite = favorites.find(f => {
+      const fundcode = typeof f === 'string' ? f : (f.fundcode || f.code);
+      return fundcode === code;
+    });
+    
+    if (favorite && typeof favorite === 'object' && (favorite.shares || favorite.cost)) {
       this.setData({
-        shares: String(position.shares),
-        cost: String(position.cost),
+        shares: String(favorite.shares || ''),
+        cost: String(favorite.cost || ''),
       });
     }
   },
@@ -121,7 +127,7 @@ Page({
    * 保存持仓
    */
   async onSave() {
-    const { fundCode, shares, cost } = this.data;
+    const { fundCode, fundInfo, shares, cost } = this.data;
 
     if (!shares || !cost) {
       util.showToast('请输入完整信息');
@@ -136,27 +142,25 @@ Page({
       return;
     }
 
-    const success = storage.setPosition(fundCode, {
-      shares: sharesNum,
-      cost: costNum,
-      updateTime: Date.now(),
-    });
-
-    if (success) {
-      util.showToast('保存成功');
-      
-      // 添加到自选
-      if (!storage.isFavorite(fundCode)) {
-        storage.addFavorite(fundCode);
-      }
-
-      // 延迟返回
-      setTimeout(() => {
-        wx.navigateBack();
-      }, 1000);
+    // 先检查是否已自选，如果没有则添加
+    if (!storage.isFavorite(fundCode)) {
+      storage.addFavorite({
+        fundcode: fundCode,
+        name: fundInfo?.name || '',
+        shares: sharesNum,
+        cost: costNum,
+      });
     } else {
-      util.showToast('保存失败');
+      // 如果已经自选，则更新持仓信息
+      storage.updateHolding(fundCode, sharesNum, costNum);
     }
+
+    util.showToast('保存成功');
+    
+    // 延迟返回
+    setTimeout(() => {
+      wx.navigateBack();
+    }, 1000);
   },
 
   /**
@@ -178,7 +182,8 @@ Page({
   async onDelete() {
     const confirm = await util.showModal('确定要删除持仓记录吗？');
     if (confirm) {
-      storage.removePosition(this.data.fundCode);
+      // 删除持仓信息（将shares和cost设为0）
+      storage.updateHolding(this.data.fundCode, 0, 0);
       util.showToast('已删除');
       this.onClear();
     }
